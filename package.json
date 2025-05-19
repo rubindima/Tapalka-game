@@ -1,14 +1,20 @@
 {
-  "name": "simple-auth-server",
+  "name": "clicker-server",
   "version": "1.0.0",
-  "description": "Сервер для реєстрації та авторизації без бази даних (Node.js + Express)",
+  "description": "Сервер для реєстрації, авторизації та апгрейдів клікер-гри",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "express",
+    "auth",
+    "clicker",
+    "api",
+    "crud"
+  ],
+  "author": "Твоє імʼя",
+  "license": "MIT",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.18.2"
