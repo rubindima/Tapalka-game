@@ -1,16 +1,14 @@
-const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
-
-function encodePassword(password) {
-  return crypto.createHash('sha256').update(password).digest('hex');
+async function hashPassword(password) {
+  return await bcrypt.hash(password, 10);
 }
 
-function generateToken(email) {
-  const timestamp = Date.now().toString();
-  return crypto.createHash('sha256').update(email + timestamp).digest('hex');
+async function comparePasswords(password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
 }
 
 module.exports = {
-  encodePassword,
-  generateToken
+  hashPassword,
+  comparePasswords
 };
