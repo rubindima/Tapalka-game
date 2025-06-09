@@ -1,52 +1,43 @@
 const express = require('express');
 const router = express.Router();
+const users = require('../data/users');
 
-
-let user = {
-  email: 'default@example.com',
-  balance: 0,
-  coinsPerClick: 1,
-  passiveIncomePerSecond: 1
-};
-
-
- 
+// POST /click
 router.post('/click', (req, res) => {
-  try {
-    if (!user) {
-      return res.status(404).json({ message: 'Користувача не знайдено.' });
-    }
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email обовʼязковий.' });
 
-    user.balance += user.coinsPerClick;
-    res.status(200).json({ balance: user.balance });
-  } catch (error) {
-    res.status(500).json({ message: 'Помилка сервера.' });
-  }
+  const u = users.find(x => x.email === email);
+  if (!u) return res.status(404).json({ message: 'Користувача не знайдено.' });
+
+  u.balance += u.coinsPerClick;
+  res.json({ balance: u.balance });
 });
 
-
+// POST /passive-income
 router.post('/passive-income', (req, res) => {
-  try {
-    if (!user) {
-      return res.status(404).json({ message: 'Користувача не знайдено.' });
-    }
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email обовʼязковий.' });
 
-    user.balance += user.passiveIncomePerSecond;
-    res.status(200).json({ balance: user.balance });
-  } catch (error) {
-    res.status(500).json({ message: 'Помилка сервера.' });
-  }
+  const u = users.find(x => x.email === email);
+  if (!u) return res.status(404).json({ message: 'Користувача не знайдено.' });
+
+  u.balance += u.passiveIncomePerSecond;
+  res.json({ balance: u.balance });
 });
 
+// GET /user/balance
 router.get('/user/balance', (req, res) => {
-  if (!user) {
-    return res.status(404).json({ message: 'Користувача не знайдено.' });
-  }
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ message: 'Email обовʼязковий.' });
+
+  const u = users.find(x => x.email === email);
+  if (!u) return res.status(404).json({ message: 'Користувача не знайдено.' });
 
   res.json({
-    balance: user.balance,
-    coinsPerClick: user.coinsPerClick,
-    passiveIncomePerSecond: user.passiveIncomePerSecond
+    balance: u.balance,
+    coinsPerClick: u.coinsPerClick,
+    passiveIncomePerSecond: u.passiveIncomePerSecond
   });
 });
 
