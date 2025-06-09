@@ -1,49 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const { hashPassword, comparePasswords } = require('../utils/cryptoUtils');
 const users = require('../data/users');
+const { hashPassword, comparePasswords } = require('../utils/cryptoUtils');
 
-// Реєстрація
-router.post('/register', async (req, res) => {
+// POST /sign-up
+router.post('/sign-up', async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ message: 'Email і пароль обовʼязкові.' });
+  if (password.length < 8) return res.status(400).json({ message: 'Пароль мінімум 8 символів.' });
+  if (users.find(u => u.email === email)) return res.status(409).json({ message: 'Користувач вже існує.' });
 
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email і пароль обов’язкові.' });
-  }
-
-  const existingUser = users.find((u) => u.email === email);
-  if (existingUser) {
-    return res.status(409).json({ message: 'Користувач з таким email вже існує.' });
-  }
-
-  const hashedPassword = await hashPassword(password);
-
-  users.push({
-    email,
-    password: hashedPassword,
-    balance: 0,
-    coinsPerClick: 1,
-    passiveIncomePerSecond: 1
-  });
-
-  res.status(201).json({ message: 'Користувач зареєстрований успішно.' });
+  const hashed = await hashPassword(password);
+  users.push({ email, password: hashed, balance: 0, coinsPerClick: 1, passiveIncomePerSecond: 1 });
+  res.status(201).json({ message: 'Реєстрація успішна!' });
 });
 
-// Логін
-router.post('/login', async (req, res) => {
+// POST /sign-in
+router.post('/sign-in', async (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ message: 'Email і пароль обовʼязкові.' });
 
-  const user = users.find((u) => u.email === email);
-  if (!user) {
-    return res.status(404).json({ message: 'Користувача не знайдено.' });
-  }
+  const user = users.find(u => u.email === email);
+  if (!user) return res.status(401).json({ message: 'Невірний email або пароль.' });
+  const ok = await comparePasswords(password, user.password);
+  if (!ok) return res.status(401).json({ message: 'Невірний email або пароль.' });
 
-  const isMatch = await comparePasswords(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: 'Неправильний пароль.' });
-  }
-
-  res.status(200).json({ message: 'Успішний вхід.', user });
+  res.status(200).json({ message: 'Успішний вхід!', user: { email: user.email } });
 });
 
 module.exports = router;
