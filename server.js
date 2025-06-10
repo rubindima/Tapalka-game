@@ -6,21 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// -------------------------
-// 1) AUTH (register + login)
-// -------------------------
+
 let users = [];
 
-/**
- * Хешує пароль SHA-256
- */
+
 function encodePassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-/**
- * Генерує токен (sha256 email+timestamp)
- */
+
 function generateToken(email) {
     const timestamp = Date.now().toString();
     return crypto.createHash('sha256').update(email + timestamp).digest('hex');
@@ -57,9 +51,7 @@ app.post('/sign-in', (req, res) => {
     return res.status(200).json({ token });
 });
 
-// ------------------------------------
-// 2) UPGRADES CRUD
-// ------------------------------------
+
 let upgrades = [];
 let nextUpgradeId = 1;
 
@@ -76,19 +68,19 @@ function validateUpgrade(data) {
     return null;
 }
 
-// GET all
+
 app.get('/upgrades', (req, res) => {
     res.json(upgrades);
 });
 
-// GET by id
+
 app.get('/upgrades/:id', (req, res) => {
     const u = upgrades.find(x => x.id === +req.params.id);
     if (!u) return res.status(404).json({ error: 'Апгрейд не знайдено.' });
     res.json(u);
 });
 
-// CREATE
+
 app.post('/upgrades', (req, res) => {
     const err = validateUpgrade(req.body);
     if (err) return res.status(400).json({ error: err });
@@ -97,7 +89,7 @@ app.post('/upgrades', (req, res) => {
     res.status(201).json(newU);
 });
 
-// UPDATE
+
 app.put('/upgrades/:id', (req, res) => {
     const u = upgrades.find(x => x.id === +req.params.id);
     if (!u) return res.status(404).json({ error: 'Апгрейд не знайдено.' });
@@ -107,7 +99,7 @@ app.put('/upgrades/:id', (req, res) => {
     res.json(u);
 });
 
-// DELETE
+
 app.delete('/upgrades/:id', (req, res) => {
     const idx = upgrades.findIndex(x => x.id === +req.params.id);
     if (idx === -1) return res.status(404).json({ error: 'Апгрейд не знайдено.' });
@@ -115,12 +107,9 @@ app.delete('/upgrades/:id', (req, res) => {
     res.status(204).end();
 });
 
-// ------------------------------------
-// 3) BALANCE (click + passive income)
-// ------------------------------------
-// Ми працюємо з тим самим масивом users, тому balance зберігається там
 
-// POST /click
+
+
 app.post('/click', (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email обовʼязковий.' });
@@ -130,7 +119,7 @@ app.post('/click', (req, res) => {
     return res.status(200).json({ balance: user.balance });
 });
 
-// POST /passive-income
+
 app.post('/passive-income', (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Email обовʼязковий.' });
@@ -140,7 +129,7 @@ app.post('/passive-income', (req, res) => {
     return res.status(200).json({ balance: user.balance });
 });
 
-// GET /user/balance
+
 app.get('/user/balance', (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: 'Email обовʼязковий.' });
@@ -153,9 +142,7 @@ app.get('/user/balance', (req, res) => {
     });
 });
 
-// -------------------------
-// Запуск сервера
-// -------------------------
+
 const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Сервер працює на http://localhost:${PORT}`);
